@@ -351,6 +351,18 @@ public class FrmPelanggan extends javax.swing.JFrame {
     }//GEN-LAST:event_txtKodeActionPerformed
 
     private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
+        if (Pelanggan.cekKTP(txtKTP.getText(), idPelanggan)) {
+        
+            JOptionPane.showMessageDialog(this,
+                    "No KTP sudah digunakan!",
+                    "Peringatan",
+                    JOptionPane.WARNING_MESSAGE);
+            
+            txtKTP.requestFocus();
+            
+            return;
+        }
+        
         if (txtNama.getText().trim().isEmpty()
                 || txtKTP.getText().trim().isEmpty()
                 || txtSIM.getText().trim().isEmpty()
