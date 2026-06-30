@@ -4,6 +4,7 @@
  */
 package backend;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -158,7 +159,7 @@ public class Pelanggan {
     
             }
     
-        } catch(Exception e){
+        } catch(SQLException e){
         
             System.out.println(e);
     
@@ -230,7 +231,7 @@ public class Pelanggan {
     
             }
     
-        } catch (Exception e) {
+        } catch (SQLException e) {
         
             System.out.println(e);
     
@@ -238,5 +239,24 @@ public class Pelanggan {
     
         return p;
     
+    }
+    public static boolean cekKTP(String noKtp, int idPelanggan) {
+        String query = "SELECT * FROM pelanggan "
+                + "WHERE no_ktp='" + noKtp + "' "
+                + "AND id_pelanggan<>" + idPelanggan;
+    
+        ResultSet rs = DBHelper.selectQuery(query);
+    
+        try {
+        
+            if (rs.next()) {
+                return true;
+            }
+    
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    
+        return false;
     }
 }
