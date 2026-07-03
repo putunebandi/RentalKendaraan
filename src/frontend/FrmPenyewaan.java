@@ -30,6 +30,15 @@ public class FrmPenyewaan extends javax.swing.JFrame {
     private DefaultTableModel modelDetail;
     private final SimpleDateFormat sdfTampil = new SimpleDateFormat("dd/MM/yyyy");
     private final SimpleDateFormat sdfSql = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat sdfTanggalJam = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private javax.swing.Timer timerJam;
+    private java.text.NumberFormat formatRupiah;
+    private final SimpleDateFormat sdfTglMulaiKembali = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private final SimpleDateFormat sdfJamSaja = new SimpleDateFormat("HH:mm");
+    private String waktuMulai = "";
+    private String waktuKembali = "";
+    private boolean waktuTerkunci = false;
+        
 
     public FrmPenyewaan() {
         initComponents();
@@ -61,7 +70,7 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         trfKendaraan = new javax.swing.JTextField();
-        TrfSupir = new javax.swing.JTextField();
+        trfSupir = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblDetail = new javax.swing.JTable();
         jLabel11 = new javax.swing.JLabel();
@@ -75,6 +84,9 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         btnSimpan = new javax.swing.JButton();
         txtTglMulai = new javax.swing.JFormattedTextField();
         txtTglKembali = new javax.swing.JFormattedTextField();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        btnClearKendaraan = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -99,7 +111,7 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
         jLabel7.setText("Kendaraan");
 
-        jLabel8.setText("Supir");
+        jLabel8.setText("Sopir");
 
         jLabel9.setText("Tarif Kendaraan");
 
@@ -108,7 +120,7 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         trfKendaraan.setEnabled(false);
         trfKendaraan.addActionListener(this::trfKendaraanActionPerformed);
 
-        TrfSupir.setEnabled(false);
+        trfSupir.setEnabled(false);
 
         tblDetail.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -145,23 +157,20 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
         btnSimpan.setText("Simpan");
 
-        txtTglMulai.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("##/##/####"))));
+        txtTglMulai.addActionListener(this::txtTglMulaiActionPerformed);
 
-        txtTglKembali.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("##/##/####"))));
         txtTglKembali.addActionListener(this::txtTglKembaliActionPerformed);
+
+        jLabel12.setText("dd/MM/yyyy");
+
+        jLabel13.setText("dd/MM/yyyy");
+
+        btnClearKendaraan.setText("Clear Kendaraan");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel11)
-                        .addGap(26, 26, 26)
-                        .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 399, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -178,32 +187,50 @@ public class FrmPenyewaan extends javax.swing.JFrame {
                             .addComponent(jLabel9)
                             .addComponent(jLabel10))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(53, 53, 53)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(cmbKendaraan, 0, 151, Short.MAX_VALUE)
-                                        .addComponent(cmbSopir, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(trfKendaraan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(TrfSupir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(54, 54, 54)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtTglMulai, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtTglMulai, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel12))
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(tglTransaksi)
+                                        .addComponent(tglTransaksi, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
                                         .addComponent(txtCatatan)
-                                        .addComponent(cmbPelanggan, 0, 150, Short.MAX_VALUE)
                                         .addComponent(txtNoSewa))
-                                    .addComponent(txtTglKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtTglKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel13))
+                                    .addComponent(cmbKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(53, 53, 53)
+                                    .addComponent(cmbPelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(trfKendaraan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(trfSupir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(cmbSopir, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnTambahDetail)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnHapusDetail)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnClearKendaraan))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(btnSimpan, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(424, 424, 424)
+                        .addComponent(jLabel11)
+                        .addGap(26, 26, 26)
+                        .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 675, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,11 +250,13 @@ public class FrmPenyewaan extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(txtTglMulai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTglMulai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(txtTglKembali, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTglKembali, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
@@ -242,26 +271,29 @@ public class FrmPenyewaan extends javax.swing.JFrame {
                     .addComponent(cmbSopir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(trfKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(trfKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(TrfSupir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(trfSupir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnTambahDetail)
-                    .addComponent(btnHapusDetail)
-                    .addComponent(btnClear))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnHapusDetail)
+                        .addComponent(btnClearKendaraan)))
                 .addGap(23, 23, 23)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11))
-                .addGap(18, 18, 18)
-                .addComponent(btnSimpan)
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSimpan)
+                    .addComponent(btnClear))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
 
         pack();
@@ -305,16 +337,23 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbPelangganActionPerformed
 
+    private void txtTglMulaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTglMulaiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTglMulaiActionPerformed
+
     // ===== Setup tambahan (di luar initComponents, aman dari GUI builder) =====
 
     private void setupTambahan() {
+        formatRupiah = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("in", "ID"));
+        formatRupiah.setMaximumFractionDigits(0);
+        formatRupiah.setMinimumFractionDigits(0);
         listDetail = new ArrayList<>();
 
         // Field read-only
         txtNoSewa.setEditable(false);
         tglTransaksi.setEditable(false);
         trfKendaraan.setEditable(false);
-        TrfSupir.setEditable(false);
+        trfSupir.setEditable(false);
         txtTotal.setEditable(false);
 
         // Ganti model tabel jadi 6 kolom sesuai kebutuhan
@@ -330,11 +369,72 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         // btnClear & btnSimpan belum ada listener di initComponents(), tambahkan di sini
         btnClear.addActionListener(e -> clearForm());
         btnSimpan.addActionListener(e -> simpanPenyewaan());
+        btnClearKendaraan.addActionListener(e -> clearKendaraan());
 
         // Auto-isi tarif ketika kendaraan dipilih
         cmbKendaraan.addActionListener(e -> isiTarifOtomatis());
 
         muatDataAwal();
+        
+        // Filter manual: hanya angka, "/" otomatis muncul, khusus tanggal saja
+        ((javax.swing.text.AbstractDocument) txtTglMulai.getDocument())
+        .setDocumentFilter(new TanggalDocumentFilter());
+        ((javax.swing.text.AbstractDocument) txtTglKembali.getDocument())
+        .setDocumentFilter(new TanggalDocumentFilter());
+        timerJam = new javax.swing.Timer(1000, e -> {
+            tglTransaksi.setText(sdfTanggalJam.format(new Date()));
+            if (!waktuTerkunci) {
+            hitungWaktuOtomatis();
+            perbaruiLabelWaktu();
+            }
+        });
+        timerJam.start();
+        
+        btnClearKendaraan = new javax.swing.JButton("Clear kendaraan");
+        btnClearKendaraan.addActionListener(e -> clearKendaraan());
+        getContentPane().add(btnClearKendaraan); 
+        
+        setupComboRenderer();
+    }
+    
+    @Override
+    public void dispose() {
+    if (timerJam != null) {
+        timerJam.stop();
+    }
+    super.dispose();
+    }
+    
+    // ===== Helper: buang bagian "id - " dari string combo, khusus untuk tampilan =====
+    private String hilangkanId(String teks) {
+    if (teks == null) return "";
+    int idx = teks.indexOf(" - ");
+    if (idx != -1) {
+        return teks.substring(idx + 3);
+    }
+    return teks;
+    }
+    
+    // ===== Renderer: sembunyikan id dari tampilan combo, tapi data asli tetap utuh =====
+    private void setupComboRenderer() {
+    javax.swing.DefaultListCellRenderer renderer = new javax.swing.DefaultListCellRenderer() {
+        @Override
+        public java.awt.Component getListCellRendererComponent(
+                javax.swing.JList<?> list, Object value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value != null) {
+                String teks = value.toString();
+                int idx = teks.indexOf(" - ");
+                if (idx != -1) {
+                    setText(teks.substring(idx + 3)); // buang bagian "id - "
+                }
+            }
+            return this;
+        }
+    };
+    cmbKendaraan.setRenderer(renderer);
+    cmbSopir.setRenderer(renderer);
     }
 
     // ===== Helper: ambil id dari string combo berformat "id - kode - label" =====
@@ -347,11 +447,48 @@ public class FrmPenyewaan extends javax.swing.JFrame {
             return -1;
         }
     }
+    
+    private String formatRupiah(double nilai) {
+    return formatRupiah.format(nilai);
+    }
+
+    private double parseRupiah(String teks) {
+    if (teks == null) return 0;
+    String angkaSaja = teks.replaceAll("[^0-9]", "");
+    if (angkaSaja.isEmpty()) return 0;
+    return Double.parseDouble(angkaSaja);
+    }
+    
+    // Hitung ulang jam otomatis (tidak mengubah tampilan, hanya nilai acuan)
+    private void hitungWaktuOtomatis() {
+        java.util.Calendar mulai = java.util.Calendar.getInstance();
+        mulai.add(java.util.Calendar.HOUR_OF_DAY, 1);
+        waktuMulai = sdfJamSaja.format(mulai.getTime());
+
+        java.util.Calendar kembali = (java.util.Calendar) mulai.clone();
+        kembali.add(java.util.Calendar.HOUR_OF_DAY, 24);
+        waktuKembali = sdfJamSaja.format(kembali.getTime());
+    }
+
+    // Kosongkan tampilan tanggal supaya user mengetik manual dari awal
+    private void resetTanggalKosong() {
+        txtTglMulai.setText("");
+        txtTglKembali.setText("");
+    }
+
+    // Tampilkan jam otomatis ke label (bukan lagi ke field tanggal)
+    private void perbaruiLabelWaktu() {
+        jLabel12.setText(waktuMulai);
+        jLabel13.setText(waktuKembali);
+    }
 
     private void muatDataAwal() {
         txtNoSewa.setText(Penyewaan.generateNoSewa());
-        tglTransaksi.setText(sdfTampil.format(new Date()));
+        tglTransaksi.setText(sdfTanggalJam.format(new Date()));
 
+        hitungWaktuOtomatis();
+        perbaruiLabelWaktu();
+        resetTanggalKosong();
         muatComboPelanggan();
         muatComboKendaraan();
         muatComboSopir();
@@ -374,24 +511,27 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
     private void muatComboKendaraan() {
         cmbKendaraan.removeAllItems();
-        String query = "SELECT id_kendaraan, kode_kendaraan, merk, tipe, status FROM kendaraan ORDER BY kode_kendaraan";
+        String query = "SELECT k.id_kendaraan, k.kode_kendaraan, k.merk, k.tipe, k.status FROM kendaraan k "
+            + "WHERE k.status = 'tersedia' "
+            + "AND EXISTS (SELECT 1 FROM tarif t WHERE t.id_kendaraan = k.id_kendaraan AND t.aktif = 1) "
+            + "ORDER BY k.kode_kendaraan";
         ResultSet rs = DBHelper.selectQuery(query);
         try {
-            while (rs != null && rs.next()) {
-                String item = rs.getInt("id_kendaraan") + " - " + rs.getString("kode_kendaraan")
-                        + " - " + rs.getString("merk") + " " + rs.getString("tipe")
-                        + " (" + rs.getString("status") + ")";
-                cmbKendaraan.addItem(item);
+        while (rs != null && rs.next()) {
+            String item = rs.getInt("id_kendaraan") + " - " + rs.getString("kode_kendaraan")
+                    + " - " + rs.getString("merk") + " " + rs.getString("tipe")
+                    + " (" + rs.getString("status") + ")";
+            cmbKendaraan.addItem(item);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+        e.printStackTrace();
+            }
         }
-    }
 
     private void muatComboSopir() {
         cmbSopir.removeAllItems();
         cmbSopir.addItem("0 - Tanpa Supir -");
-        String query = "SELECT id_sopir, kode_sopir, nama_sopir, status FROM sopir ORDER BY nama_sopir";
+        String query = "SELECT id_sopir, kode_sopir, nama_sopir, status FROM sopir " + "WHERE status = 'tersedia' ORDER BY nama_sopir";
         ResultSet rs = DBHelper.selectQuery(query);
         try {
             while (rs != null && rs.next()) {
@@ -413,11 +553,11 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         ResultSet rs = DBHelper.selectQuery(query);
         try {
             if (rs != null && rs.next()) {
-                trfKendaraan.setText(String.valueOf(rs.getDouble("tarif_harian")));
-                TrfSupir.setText(String.valueOf(rs.getDouble("tarif_sopir_harian")));
-            } else {
+        trfKendaraan.setText(formatRupiah(rs.getDouble("tarif_harian")));
+        trfSupir.setText(formatRupiah(rs.getDouble("tarif_sopir_harian")));
+        } else {
                 trfKendaraan.setText("");
-                TrfSupir.setText("");
+                trfSupir.setText("");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -444,13 +584,15 @@ public class FrmPenyewaan extends javax.swing.JFrame {
      */
     private int hitungLamaHari() {
         try {
-            Date mulai = sdfTampil.parse(txtTglMulai.getText().trim());
-            Date kembali = sdfTampil.parse(txtTglKembali.getText().trim());
+            String teksMulai = txtTglMulai.getText().trim() + " " + jLabel12.getText().trim();
+            String teksKembali = txtTglKembali.getText().trim() + " " + jLabel13.getText().trim();
+            Date mulai = sdfTglMulaiKembali.parse(teksMulai);
+            Date kembali = sdfTglMulaiKembali.parse(teksKembali);
             if (kembali.before(mulai)) {
                 return -1;
             }
             long selisihMs = kembali.getTime() - mulai.getTime();
-            int hari = (int) (selisihMs / (1000L * 60 * 60 * 24));
+            int hari = (int) Math.ceil(selisihMs / (1000.0 * 60 * 60 * 24));
             return Math.max(hari, 1);
         } catch (ParseException e) {
             return -1;
@@ -487,15 +629,13 @@ public class FrmPenyewaan extends javax.swing.JFrame {
             return;
         }
 
-        double tarifKendaraan;
-        double tarifSopir;
-        try {
-            tarifKendaraan = Double.parseDouble(trfKendaraan.getText().trim());
-            tarifSopir = Double.parseDouble(TrfSupir.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tarif kendaraan tidak valid!");
-            return;
-        }
+        double tarifKendaraan = parseRupiah(trfKendaraan.getText());
+    double tarifSopir = parseRupiah(trfSupir.getText());
+
+    if (tarifKendaraan <= 0) {
+    JOptionPane.showMessageDialog(this, "Tarif kendaraan tidak valid!");
+    return;
+    }
 
         boolean pakaiSopir = idSopir != 0 && idSopir != -1;
         double hargaSopirDipakai = pakaiSopir ? tarifSopir : 0;
@@ -515,16 +655,35 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         listDetail.add(detail);
 
         modelDetail.addRow(new Object[]{
-                detail.getKodeKendaraan(),
-                detail.getNamaSopir(),
-                detail.getLamaHari(),
-                detail.getHargaSewa(),
-                detail.getHargaSopir(),
-                detail.getSubtotal()
-        });
+        hilangkanId(detail.getKodeKendaraan()),
+        hilangkanId(detail.getNamaSopir()),
+        detail.getLamaHari(),
+        formatRupiah(detail.getHargaSewa()),
+        formatRupiah(detail.getHargaSopir()),
+        formatRupiah(detail.getSubtotal())
+});
 
         hitungTotal();
-    }
+        
+        cmbKendaraan.removeItem(kendaraanTerpilih);
+        if (cmbKendaraan.getItemCount()>0) {
+            cmbKendaraan.setSelectedIndex(0);
+        }
+        trfKendaraan.setText("");
+        trfSupir.setText("");
+        
+        txtTglMulai.setEditable(false);
+        txtTglKembali.setEditable(false);
+        cmbPelanggan.setEnabled(false);
+        waktuTerkunci = true;
+        if (pakaiSopir){
+            cmbSopir.removeItem(sopirTerpilih);
+        }
+        if (cmbSopir.getItemCount()>0) {
+            cmbSopir.setSelectedIndex(0);
+        }
+        }
+    
 
     private void hapusKendaraan() {
         int baris = tblDetail.getSelectedRow();
@@ -532,9 +691,23 @@ public class FrmPenyewaan extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Pilih baris kendaraan yang ingin dihapus!");
             return;
         }
+        PenyewaanDetail detailDihapus = listDetail.get(baris);
         listDetail.remove(baris);
         modelDetail.removeRow(baris);
         hitungTotal();
+        cmbKendaraan.addItem(detailDihapus.getKodeKendaraan());
+        if (detailDihapus.getIdSopir() !=null) {
+            cmbSopir.addItem(detailDihapus.getNamaSopir());
+        }
+        if (listDetail.isEmpty()){
+            txtTglMulai.setEditable(true);
+            txtTglKembali.setEditable(true);
+            cmbPelanggan.setEnabled(true);
+            waktuTerkunci = false;
+            hitungWaktuOtomatis();
+            perbaruiLabelWaktu();
+            resetTanggalKosong();
+        }
     }
 
     private void hitungTotal() {
@@ -542,23 +715,61 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         for (PenyewaanDetail d : listDetail) {
             total += d.getSubtotal();
         }
-        txtTotal.setText(String.valueOf(total));
+        txtTotal.setText(formatRupiah(total));
     }
 
     private void clearForm() {
-        txtTglMulai.setText("");
-        txtTglKembali.setText("");
+        waktuTerkunci = false;
+        hitungWaktuOtomatis();
+        perbaruiLabelWaktu();
+        resetTanggalKosong();
+        txtTglMulai.setEditable(true);
+        txtTglKembali.setEditable(true);
+        cmbPelanggan.setEnabled(true);
         txtCatatan.setText("");
         if (cmbPelanggan.getItemCount() > 0) cmbPelanggan.setSelectedIndex(0);
         if (cmbKendaraan.getItemCount() > 0) cmbKendaraan.setSelectedIndex(0);
         if (cmbSopir.getItemCount() > 0) cmbSopir.setSelectedIndex(0);
         trfKendaraan.setText("");
-        TrfSupir.setText("");
+        trfSupir.setText("");
         listDetail.clear();
         modelDetail.setRowCount(0);
         txtTotal.setText("");
         txtNoSewa.setText(Penyewaan.generateNoSewa());
     }
+    
+    private void clearKendaraan() {
+    if (listDetail.isEmpty()) {
+        return; // tidak ada apa-apa untuk dihapus
+    }
+
+    int konfirmasi = JOptionPane.showConfirmDialog(this,
+            "Hapus semua kendaraan yang sudah ditambahkan?",
+            "Konfirmasi", JOptionPane.YES_NO_OPTION);
+    if (konfirmasi != JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    for (PenyewaanDetail d : listDetail) {
+        cmbKendaraan.addItem(d.getKodeKendaraan());
+        if (d.getIdSopir() != null) {
+            cmbSopir.addItem(d.getNamaSopir());
+        }
+    }
+
+        listDetail.clear();
+        modelDetail.setRowCount(0);
+        txtTotal.setText("");
+
+        txtTglMulai.setEditable(true);
+        txtTglKembali.setEditable(true);
+        cmbPelanggan.setEnabled(true);
+        waktuTerkunci = false;
+        hitungWaktuOtomatis();
+        perbaruiLabelWaktu();
+        resetTanggalKosong();
+
+        }
 
     private void simpanPenyewaan() {
         int idPelanggan = getIdFromCombo((String) cmbPelanggan.getSelectedItem());
@@ -582,8 +793,8 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         }
 
         try {
-            Date mulai = sdfTampil.parse(txtTglMulai.getText().trim());
-            Date kembali = sdfTampil.parse(txtTglKembali.getText().trim());
+            Date mulai = sdfTglMulaiKembali.parse(txtTglMulai.getText().trim() + " " + jLabel12.getText().trim());
+            Date kembali = sdfTglMulaiKembali.parse(txtTglKembali.getText().trim() + " " + jLabel13.getText().trim());
 
             Penyewaan penyewaan = new Penyewaan();
             penyewaan.setNoSewa(txtNoSewa.getText());
@@ -613,6 +824,16 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(this, "Data penyewaan berhasil disimpan dengan No Sewa: " + penyewaan.getNoSewa());
             clearForm();
+            listDetail.clear();
+            modelDetail.setRowCount(0);
+            txtTotal.setText("");
+            txtTglMulai.setEditable(true);
+            txtTglKembali.setEditable(true);
+            cmbPelanggan.setEnabled(true);
+            waktuTerkunci = false;
+            hitungWaktuOtomatis();
+            perbaruiLabelWaktu();
+            resetTanggalKosong();
             muatComboKendaraan();
             muatComboSopir();
 
@@ -647,8 +868,8 @@ public class FrmPenyewaan extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField TrfSupir;
     private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnClearKendaraan;
     private javax.swing.JButton btnHapusDetail;
     private javax.swing.JButton btnSimpan;
     private javax.swing.JButton btnTambahDetail;
@@ -658,6 +879,8 @@ public class FrmPenyewaan extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -670,10 +893,50 @@ public class FrmPenyewaan extends javax.swing.JFrame {
     private javax.swing.JTable tblDetail;
     private javax.swing.JTextField tglTransaksi;
     private javax.swing.JTextField trfKendaraan;
+    private javax.swing.JTextField trfSupir;
     private javax.swing.JTextField txtCatatan;
     private javax.swing.JTextField txtNoSewa;
     private javax.swing.JFormattedTextField txtTglKembali;
     private javax.swing.JFormattedTextField txtTglMulai;
     private javax.swing.JTextField txtTotal;
     // End of variables declaration//GEN-END:variables
+    
+    private static class TanggalDocumentFilter extends javax.swing.text.DocumentFilter {
+
+    @Override
+    public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+        replace(fb, offset, 0, string, attr);
+    }
+
+    @Override
+    public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+        if (text == null) return;
+
+        String existing = fb.getDocument().getText(0, fb.getDocument().getLength());
+        StringBuilder sb = new StringBuilder(existing);
+        sb.replace(offset, offset + length, text);
+
+        String digits = sb.toString().replaceAll("[^0-9]", "");
+        if (digits.length() > 8) {
+            digits = digits.substring(0, 8);
+        }
+
+        StringBuilder hasil = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            hasil.append(digits.charAt(i));
+            if (i == 1 || i == 3) {
+                hasil.append("/");
+            }
+        }
+
+        fb.remove(0, fb.getDocument().getLength());
+        fb.insertString(0, hasil.toString(), attrs);
+    }
+
+    @Override
+    public void remove(FilterBypass fb, int offset, int length) throws javax.swing.text.BadLocationException {
+        fb.remove(offset, length);
+        }
+    }
+    
 }
