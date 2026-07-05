@@ -161,10 +161,6 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
         txtTglKembali.addActionListener(this::txtTglKembaliActionPerformed);
 
-        jLabel12.setText("dd/MM/yyyy");
-
-        jLabel13.setText("dd/MM/yyyy");
-
         btnClearKendaraan.setText("Clear Kendaraan");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -293,7 +289,7 @@ public class FrmPenyewaan extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSimpan)
                     .addComponent(btnClear))
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
 
         pack();
@@ -373,6 +369,7 @@ public class FrmPenyewaan extends javax.swing.JFrame {
 
         // Auto-isi tarif ketika kendaraan dipilih
         cmbKendaraan.addActionListener(e -> isiTarifOtomatis());
+        cmbSopir.addActionListener(e -> isiTarifOtomatis());
 
         muatDataAwal();
         
@@ -553,9 +550,15 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         ResultSet rs = DBHelper.selectQuery(query);
         try {
             if (rs != null && rs.next()) {
-        trfKendaraan.setText(formatRupiah(rs.getDouble("tarif_harian")));
-        trfSupir.setText(formatRupiah(rs.getDouble("tarif_sopir_harian")));
-        } else {
+                trfKendaraan.setText(formatRupiah(rs.getDouble("tarif_harian")));
+
+                int idSopir = getIdFromCombo((String) cmbSopir.getSelectedItem());
+                if (idSopir <= 0) {
+                    trfSupir.setText(formatRupiah(0));
+                } else {
+                    trfSupir.setText(formatRupiah(rs.getDouble("tarif_sopir_harian")));
+                }
+            } else {
                 trfKendaraan.setText("");
                 trfSupir.setText("");
             }
@@ -922,6 +925,8 @@ public class FrmPenyewaan extends javax.swing.JFrame {
         }
 
         StringBuilder hasil = new StringBuilder();
+        
+        
         for (int i = 0; i < digits.length(); i++) {
             hasil.append(digits.charAt(i));
             if (i == 1 || i == 3) {
